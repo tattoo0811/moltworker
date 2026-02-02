@@ -72,7 +72,15 @@
   },
   // Note: CF_ACCOUNT_ID should be set via `wrangler secret put CF_ACCOUNT_ID`
   // Secrets to configure via `wrangler secret put`:
-  // - ANTHROPIC_API_KEY: Your Anthropic API key
+  //
+  // === AI Provider (choose ONE) ===
+  // - ANTHROPIC_API_KEY: Your Anthropic API key (Claude)
+  // - OPENAI_API_KEY: OpenAI or Z.AI API key (set OPENAI_BASE_URL for Z.AI)
+  // - OPENAI_BASE_URL: Custom base URL (e.g., https://api.z.ai/api/coding/paas/v4 for Z.AI Coding Plan)
+  // - AI_GATEWAY_API_KEY: API key for Cloudflare AI Gateway
+  // - AI_GATEWAY_BASE_URL: AI Gateway endpoint URL
+  //
+  // === Authentication ===
   // - CF_ACCESS_TEAM_DOMAIN: Cloudflare Access team domain
   // - CF_ACCESS_AUD: Cloudflare Access application audience
   // - TELEGRAM_BOT_TOKEN: (optional) Telegram bot token

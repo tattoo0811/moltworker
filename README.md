@@ -11,7 +11,11 @@ Run [OpenClaw](https://github.com/openclaw/openclaw) (formerly Moltbot, formerly
 ## Requirements
 
 - [Workers Paid plan](https://www.cloudflare.com/plans/developer-platform/) ($5 USD/month) — required for Cloudflare Sandbox containers
-- [Anthropic API key](https://console.anthropic.com/) — for Claude access, or you can use AI Gateway's [Unified Billing](https://developers.cloudflare.com/ai-gateway/features/unified-billing/)
+- **One of the following AI providers:**
+  - [Anthropic API key](https://console.anthropic.com/) — for Claude access
+  - [Z.AI API key](https://docs.z.ai/guides/overview/quick-start) — for GLM-4.7 (Coding Plan available)
+  - OpenAI API key — for GPT models
+  - Or use AI Gateway's [Unified Billing](https://developers.cloudflare.com/ai-gateway/features/unified-billing/)
 
 The following Cloudflare features used by this project have free tiers:
 - Cloudflare Access (authentication)
@@ -43,8 +47,21 @@ _Cloudflare Sandboxes are available on the [Workers Paid plan](https://dash.clou
 # Install dependencies
 npm install
 
-# Set your API key (direct Anthropic access)
+# Set your API key (choose ONE provider):
+
+# Option 1: Anthropic (Claude)
 npx wrangler secret put ANTHROPIC_API_KEY
+
+# Option 2: Z.AI GLM-4.7 (Coding Plan)
+# Z.AI provides OpenAI-compatible API with GLM-4.7 coding-optimized models
+# Get your API key from: https://docs.z.ai/guides/overview/quick-start
+npx wrangler secret put OPENAI_API_KEY
+npx wrangler secret put OPENAI_BASE_URL
+# Enter: https://api.z.ai/api/coding/paas/v4 (Coding Plan endpoint)
+# Or for general use: https://api.z.ai/api/paas/v4
+
+# Option 3: Standard OpenAI
+# npx wrangler secret put OPENAI_API_KEY
 
 # Or use AI Gateway instead (see "Optional: Cloudflare AI Gateway" below)
 # npx wrangler secret put AI_GATEWAY_API_KEY
@@ -355,6 +372,46 @@ npm run deploy
 
 The `AI_GATEWAY_*` variables take precedence over `ANTHROPIC_*` if both are set.
 
+## Optional: Z.AI GLM-4.7 (Coding Plan)
+
+[Z.AI](https://docs.z.ai/guides/overview/quick-start) provides GLM-4.7, a powerful coding-optimized model with OpenAI-compatible API. The Coding Plan ($3/month) offers specialized coding capabilities.
+
+### Setup
+
+1. Get your API key from the [Z.AI Dashboard](https://docs.z.ai/guides/overview/quick-start)
+2. Set the Z.AI secrets:
+
+```bash
+# Your Z.AI API key
+npx wrangler secret put OPENAI_API_KEY
+
+# Z.AI Coding Plan endpoint (optimized for coding tasks)
+npx wrangler secret put OPENAI_BASE_URL
+# Enter: https://api.z.ai/api/coding/paas/v4
+```
+
+For general-purpose tasks (not coding), use the standard endpoint:
+```
+https://api.z.ai/api/paas/v4
+```
+
+3. Redeploy:
+
+```bash
+npm run deploy
+```
+
+### Available Models
+
+When Z.AI is configured, the following models are available:
+- **GLM-4.7 Coding** (`zai/glm-4.7-coding`) - Coding-optimized model (default)
+- **GLM-4.7** (`zai/glm-4.7`) - Full-featured model
+- **GLM-4** (`zai/glm-4`) - Previous generation
+
+### Note on Coding Plan
+
+The Coding Plan endpoint (`/coding/paas/v4`) is specialized for coding tasks. For non-coding conversations, use the general endpoint instead.
+
 ## All Secrets Reference
 
 | Secret | Required | Description |
@@ -363,7 +420,8 @@ The `AI_GATEWAY_*` variables take precedence over `ANTHROPIC_*` if both are set.
 | `AI_GATEWAY_BASE_URL` | Yes* | AI Gateway endpoint URL (required when using `AI_GATEWAY_API_KEY`) |
 | `ANTHROPIC_API_KEY` | Yes* | Direct Anthropic API key (fallback if AI Gateway not configured) |
 | `ANTHROPIC_BASE_URL` | No | Direct Anthropic API base URL (fallback) |
-| `OPENAI_API_KEY` | No | OpenAI API key (alternative provider) |
+| `OPENAI_API_KEY` | Yes* | OpenAI/Z.AI API key (alternative provider - use with `OPENAI_BASE_URL` for Z.AI) |
+| `OPENAI_BASE_URL` | No | Custom OpenAI-compatible base URL (set to `https://api.z.ai/api/coding/paas/v4` for Z.AI Coding Plan) |
 | `CF_ACCESS_TEAM_DOMAIN` | Yes* | Cloudflare Access team domain (required for admin UI) |
 | `CF_ACCESS_AUD` | Yes* | Cloudflare Access application audience (required for admin UI) |
 | `MOLTBOT_GATEWAY_TOKEN` | Yes | Gateway token for authentication (pass via `?token=` query param) |

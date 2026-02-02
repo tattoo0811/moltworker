@@ -208,14 +208,42 @@ if (process.env.SLACK_BOT_TOKEN && process.env.SLACK_APP_TOKEN) {
     config.channels.slack.enabled = true;
 }
 
-// Base URL override (e.g., for Cloudflare AI Gateway)
+// Base URL override (e.g., for Cloudflare AI Gateway or Z.AI)
 // Usage: Set AI_GATEWAY_BASE_URL or ANTHROPIC_BASE_URL to your endpoint like:
 //   https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/anthropic
 //   https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/openai
-const baseUrl = (process.env.AI_GATEWAY_BASE_URL || process.env.ANTHROPIC_BASE_URL || '').replace(/\/+$/, '');
+//   https://api.z.ai/api/coding/paas/v4 (Z.AI Coding Plan)
+const baseUrl = (process.env.AI_GATEWAY_BASE_URL || process.env.ANTHROPIC_BASE_URL || process.env.OPENAI_BASE_URL || '').replace(/\/+$/, '');
 const isOpenAI = baseUrl.endsWith('/openai');
+const isZAI = baseUrl.includes('api.z.ai') || baseUrl.includes('z.ai');
 
-if (isOpenAI) {
+if (isZAI) {
+    // Create Z.AI provider config with GLM-4.7 models
+    // Z.AI provides OpenAI-compatible API
+    console.log('Configuring Z.AI provider with base URL:', baseUrl);
+    config.models = config.models || {};
+    config.models.providers = config.models.providers || {};
+    const zaiConfig = {
+        baseUrl: baseUrl,
+        api: 'openai-responses',
+        models: [
+            { id: 'glm-4.7', name: 'GLM-4.7', contextWindow: 128000 },
+            { id: 'glm-4.7-coding', name: 'GLM-4.7 Coding', contextWindow: 128000 },
+            { id: 'glm-4', name: 'GLM-4', contextWindow: 128000 },
+        ]
+    };
+    // Include API key in provider config if set
+    if (process.env.OPENAI_API_KEY) {
+        zaiConfig.apiKey = process.env.OPENAI_API_KEY;
+    }
+    config.models.providers.zai = zaiConfig;
+    // Add models to the allowlist so they appear in /models
+    config.agents.defaults.models = config.agents.defaults.models || {};
+    config.agents.defaults.models['zai/glm-4.7'] = { alias: 'GLM-4.7' };
+    config.agents.defaults.models['zai/glm-4.7-coding'] = { alias: 'GLM-4.7 Coding' };
+    config.agents.defaults.models['zai/glm-4'] = { alias: 'GLM-4' };
+    config.agents.defaults.model.primary = 'zai/glm-4.7-coding';
+} else if (isOpenAI) {
     // Create custom openai provider config with baseUrl override
     // Omit apiKey so moltbot falls back to OPENAI_API_KEY env var
     console.log('Configuring OpenAI provider with base URL:', baseUrl);

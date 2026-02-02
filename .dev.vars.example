@@ -1,7 +1,23 @@
 # Copy this to .dev.vars and fill in your values
 # .dev.vars is gitignored and used by wrangler dev
 
-ANTHROPIC_API_KEY=sk-ant-...
+# ============================================
+# AI PROVIDER CONFIGURATION
+# ============================================
+# Choose ONE of the following providers:
+
+# Option 1: Anthropic (Claude)
+# ANTHROPIC_API_KEY=sk-ant-...
+
+# Option 2: Z.AI GLM-4.7 (Coding Plan)
+# Z.AI API is OpenAI-compatible - set both variables below
+# OPENAI_API_KEY=your-zai-api-key
+# OPENAI_BASE_URL=https://api.z.ai/api/coding/paas/v4  # Coding Plan endpoint
+# For general endpoint (non-coding): https://api.z.ai/api/paas/v4
+
+# Option 3: Standard OpenAI
+# OPENAI_API_KEY=sk-...
+# OPENAI_BASE_URL=https://api.openai.com/v1  # Optional, defaults to OpenAI
 
 # Local development mode - skips Cloudflare Access auth and bypasses device pairing
 # DEV_MODE=true
